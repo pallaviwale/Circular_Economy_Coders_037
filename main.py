@@ -1,8 +1,15 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
+import Preprocessor
 
-data1 = pd.read_csv("olist_order_payments_dataset.csv")
-df1 = pd.DataFrame(data1)
-df1
+order_data = pd.read_csv("olist_orders_dataset.csv")
+df = pd.DataFrame(order_data)
+
+df = Preprocessor.fetch_time_features(df)
+
+
+
+
+
 

@@ -11,7 +11,4 @@ df = Preprocessor.fetch_time_features(df)
 #set streamlit layout wide
 st.set_page_config(layout="wide")
 
-
-
-
-
+st.title("Operation Team Dashboad")

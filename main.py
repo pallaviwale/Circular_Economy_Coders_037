@@ -6,4 +6,3 @@ data1 = pd.read_csv("olist_order_payments_dataset.csv")
 df1 = pd.DataFrame(data1)
 df1
 
-df1.isnull().sum()

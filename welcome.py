@@ -12,3 +12,4 @@ df = Preprocessor.fetch_time_features(df)
 st.set_page_config(layout="wide")
 
 st.title("EcomDash Project")
+

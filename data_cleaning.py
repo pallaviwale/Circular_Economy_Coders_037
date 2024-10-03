@@ -18,6 +18,13 @@ df1.describe()
 data2 = pd.read_csv("olist_order_reviews_dataset.csv")
 df2 = pd.DataFrame(data2)
 
+#Data Overview
+#review_id = Review ID
+#order_id = Order ID
+#review_score = Review Score
+#review_comment_title = Title for comment
+#review_comment_message = Review message
+
 #check null values
 print(df2.isnull().sum())
 

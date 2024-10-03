@@ -9,7 +9,7 @@ df = pd.DataFrame(order_data)
 df = Preprocessor.fetch_time_features(df)
 
 #set streamlit layout wide
-st.set_page_config(layout="wide")
+#st.set_page_config(layout="wide")
 
 
 

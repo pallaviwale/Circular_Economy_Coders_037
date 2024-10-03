@@ -20,6 +20,16 @@ def fetch_time_features(df):
     return df
 fetch_time_features(df)
 
+#Multiselect function
+def multiselect(title,option_list):
+    selected = st.sidebar.multiselect(title, option_list)
+    select_all = st.sidebar.checkbox("Select all", value = True, key = title)
+    if select_all:
+        selected_options = option_list
+    else:
+        selected_options = selected
+    return selected_options
+
 #Payment Method Graph
 order_payment_data = pd.read_csv("Ecommerce\\olist_order_payments_dataset.csv")
 payment_method_data = pd.DataFrame(order_payment_data)

@@ -20,11 +20,19 @@ main_data = Preprocessor.prepare_data(products_dataset, product_category_name_tr
 #sidebar
 st.sidebar.title("Filters")
 
-#Year Filter
-st.sidebar.multiselect("Choose Year",main_data["Year"].unique())
+#Year, Month and product_category Filter
+selected_year = Preprocessor.multiselect("Select Year", main_data["Year"].unique())
+selected_month = Preprocessor.multiselect("Select Month", main_data["Month"].unique())
+selected_product_category = Preprocessor.multiselect("Select Product Category", main_data["product_category_name_english"].unique())
 
-#Month Filter
-st.sidebar.multiselect("Choose Month",main_data["Month"].unique())
+#Global Filtering
+filtered_main_df = main_data[(main_data["Year"].isin(selected_year)) & (main_data["Month"].isin(selected_month)) & (main_data["product_category_name_english"].isin(selected_product_category))]
 
-#Product Category Filter
-st.sidebar.multiselect("Choose Product Category",main_data["product_category_name_english"].unique())
+#creating columns for KPI's
+col1, col2, col3, col4 = st.columns(4)
+
+#KPI for total sales
+with col1:
+    st.metric(label = "Total Sales", value = int(filtered_main_df["price"].sum()))
+
+

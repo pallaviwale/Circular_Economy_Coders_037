@@ -9,16 +9,13 @@ import plotly.express as px
 import calendar
 import altair as alt
 import plotly.graph_objects as go
-import random
-import locale
 
 #Define Page configuration
 st.set_page_config(page_title="Sales Dashboard", page_icon=":bar_chart:", layout="wide")
 
-st.title("Sales Dashboard")
-
-
+st.title("📊 Sales Dashboard")
 alt.themes.enable("dark")
+
 @st.cache_data
 def load_data() -> pd.DataFrame:
     product_category_name_translation_dataset = pd.read_csv("Ecommerce\\product_category_name_translation.csv")
@@ -97,80 +94,84 @@ with col1:
         yaxis_title="Total Sales",
         legend_title="Year",
         legend_font=dict(size=12),
+        height = 550
     )
     st.plotly_chart(fig, use_container_width=True)
 
 
 with col2:
-    guage_data_2018 = data[data['Year']==2018]
-    guage_data_2017 = data[data['Year']==2017]
-
-    Sale_2017_Sep = guage_data_2017[guage_data_2017['Month']<=9].groupby('Year')['price'].sum().reset_index()
-    Sale_2017_Sep_Val = Sale_2017_Sep['price'].values[0]
-    Sale_2018_Sep = guage_data_2018[guage_data_2018['Month']<=9].groupby('Year')['price'].sum().reset_index()
-    Sale_2018_Sep_Val = Sale_2018_Sep['price'].values[0]
-
-    Sale_2017_Dec = guage_data_2017[guage_data_2017['Month']>9].groupby('Year')['price'].sum().reset_index()
-    Sale_2017_Dec_Val = Sale_2017_Dec['price'].values[0]
-
-    Sep_increase = Sale_2018_Sep_Val/Sale_2017_Sep_Val
-    projected_dec_2018 = round(Sale_2017_Dec_Val * Sep_increase)
-    forcast_value = round(Sale_2018_Sep_Val + projected_dec_2018)
-
-    # Create a gauge chart
-    fig = go.Figure(
-        go.Indicator(
-            value=forcast_value,
-            mode="gauge+number",
-            domain={"x": [0, 1], "y": [0, 1]},
-            number={"suffix": " (Forecast)", "font.size": 15},
-            gauge={
-                "axis": {"range": [0, forcast_value * 1.25], "tickwidth": 1}, 
-                "bar": {"color": "green"},
-            },
-            title={
-                "text": "Sales Forecast Till 2018 End",
-                "font": {"size": 20, "color": "#add568"},
-            },
-        )
-    )
-
-    fig.update_layout(
-        font=dict(family="Arial", size=8),
-        height=175,
-        margin=dict(l=10, r=10, t=50, b=10, pad=8),
-    )
-
-    fig1 = go.Figure(
-        go.Indicator(
-            value=forcast_value,
-            mode="gauge+number",
-            domain={"x": [0, 1], "y": [0, 1]},
-            number={"suffix": " (Forecast)", "font.size": 15},
-            gauge={
-                "axis": {"range": [0, forcast_value * 1.25], "tickwidth": 1}, 
-                "bar": {"color": "green"},
-            },
-            title={
-                "text": "Sales Forecast Till 2018 End1",
-                "font": {"size": 20, "color": "#add568"},
-            },
-        )
-    )
-
-    fig1.update_layout(
-        font=dict(family="Arial", size=8),
-        height=175,
-        margin=dict(l=10, r=10, t=50, b=10, pad=8),
-    )
     
-    c0,col2_c1,c100 = st.columns([1,98,1],vertical_alignment="center")
+    c0,col2_c1,c100 = st.columns([1,98,1],vertical_alignment="top")
     with col2_c1:
+        guage_data_2018 = data[data['Year']==2018]
+        guage_data_2017 = data[data['Year']==2017]
+        
+        Sale_2017_Sep = guage_data_2017[guage_data_2017['Month']<=9].groupby('Year')['price'].sum().reset_index()
+        Sale_2017_Sep_Val = Sale_2017_Sep['price'].values[0]
+        Sale_2018_Sep = guage_data_2018[guage_data_2018['Month']<=9].groupby('Year')['price'].sum().reset_index()
+        Sale_2018_Sep_Val = Sale_2018_Sep['price'].values[0]
+        
+        Sale_2017_Dec = guage_data_2017[guage_data_2017['Month']>9].groupby('Year')['price'].sum().reset_index()
+        Sale_2017_Dec_Val = Sale_2017_Dec['price'].values[0]
+        
+        Sep_increase = Sale_2018_Sep_Val/Sale_2017_Sep_Val
+        projected_dec_2018 = round(Sale_2017_Dec_Val * Sep_increase)
+        forcast_value = round(Sale_2018_Sep_Val + projected_dec_2018)
+	
+		# Create a gauge chart
+        fig = go.Figure(
+			go.Indicator(
+				value=forcast_value,
+				mode="gauge+number",
+				domain={"x": [0, 1], "y": [0, 1]},
+				number={"suffix": " (Forecast)", "font.size": 15},
+				gauge={
+					"axis": {"range": [0, forcast_value * 1.25], "tickwidth": 1}, 
+					"bar": {"color": "green"},
+				},
+			
+			)
+		)
+        
+        fig.update_layout(
+			font=dict(family="Arial", size=12),
+			height=250,
+			margin=dict(l=10, r=10,t=90,b=10, pad=8),
+            title = "Sales Forcast till 2018",
+            title_font=dict(size=24, color="#add568"),
+            title_x=0.25
+		)
+        
         st.plotly_chart(fig, use_container_width=True)
 
     c0,col2_c2,c100 = st.columns([1,98,1],vertical_alignment="center")
+
     with col2_c2:
-        st.plotly_chart(fig1, use_container_width=True)    
+        
+        payment_method_data = filtered_data[filtered_data['payment_type'] != 'not_defined']
+        payment_methods = payment_method_data.groupby("payment_type")["payment_value"].sum().sort_values(ascending = False).reset_index()
+        #st.write(payment_methods)
+        #st.write(payment_methods[payment_methods['payment_type']])
+        # Enhanced Plotly Pie Chart for Review Score Distribution
+        fig_payment_method = px.pie(
+            payment_methods, 
+            names="payment_type", 
+            values="payment_value", 
+            title="Payment Method Distribution", 
+            hole=0.4,
+            color_discrete_sequence=px.colors.sequential.Viridis)
+
+        # Customize colors and font sizes
+        fig_payment_method.update_layout(
+            font=dict(family="Arial", size=14),
+            title_font=dict(size=24, color="#add568"),
+            title_x=0.25,
+            legend_font=dict(size=12),
+            height = 380
+        )
+        fig_payment_method.update_traces(marker=dict(line=dict(color="black", width=1.5)))
+        st.plotly_chart(fig_payment_method, use_container_width=True)
+
 
 col3, col4 = st.columns(2)
 with col3:
@@ -189,13 +190,14 @@ with col3:
         legend_font=dict(size=12),
     )
 
-    st.plotly_chart(fig, use_container_width=True, height=400)
+    st.plotly_chart(fig, use_container_width=True, height=500)
 
 with col4:
     top_product_categories = filtered_data.groupby("product_category_name_english")["price"].sum().sort_values(ascending=False).head(10).reset_index()
 
     # Create a pie chart using Plotly Express
-    fig = px.pie(top_product_categories, names="product_category_name_english", values="price", title="Top Product Categories", color_discrete_sequence=["#FF69B4", "#FFD700", "#00FF00", "#FF8C00", "#9370DB", "#00FFFF", "#FF00FF", "#40E0D0", "#FFC0CB", "#800000"])
+    fig = px.pie(top_product_categories, names="product_category_name_english", values="price", title="Top Product Categories", 
+    color_discrete_sequence=px.colors.sequential.PuRd)
 
     # Customize colors and font sizes
     fig.update_layout(
@@ -203,6 +205,7 @@ with col4:
         title_font=dict(size=24, color="#add568"),
         title_x=0.33,
         legend_font=dict(size=12),
+        height = 500
     )
 
     st.plotly_chart(fig, use_container_width=True)

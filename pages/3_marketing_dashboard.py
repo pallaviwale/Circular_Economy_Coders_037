@@ -6,7 +6,7 @@ import Preprocessor_marketing_dashboard as mb
 #set streamlit layout wide
 st.set_page_config(layout="wide")
 
-
+alt.themes.enable("dark")
 # st.title("Marketing Team Dashboad")
 st.markdown("""
     <style>

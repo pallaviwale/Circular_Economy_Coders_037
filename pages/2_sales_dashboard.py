@@ -83,8 +83,8 @@ total_sales = filtered_data_kpi['total_value'].sum()
 total_sales_in_millions = round(filtered_data_kpi['total_value'].sum() / 1000000, 2)
 formatted_total_sales = f"{total_sales_in_millions:.2f}M"
 total_orders = filtered_data_kpi['order_id'].nunique()
-average_order_value_rounded = round(total_sales / total_orders / 1000, 2)
-formatted_average_order_value = f"{average_order_value_rounded:.2f}K"
+average_order_value_rounded = round(total_sales / total_orders, 2)
+formatted_average_order_value = f"${average_order_value_rounded}"
 total_customers = filtered_data_kpi['customer_unique_id'].nunique()
 
 col1, col2, col3, col4 = st.columns(4)

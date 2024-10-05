@@ -43,27 +43,30 @@ def load_data() -> pd.DataFrame:
     customer_data = pd.read_csv("Ecommerce\\olist_customers_dataset.csv")
 
     main_data = Preprocessor_sales_dashboard.prepare_data(products_dataset, product_category_name_translation_dataset, order_items_dataset, orders_dataset,payment_method_data,customer_data)
+    kpi_data = Preprocessor_sales_dashboard.kpi_metrics_data(orders_dataset, order_items_dataset, payment_method_data, products_dataset, product_category_name_translation_dataset, customer_data)
 
-    return main_data
+    return main_data, kpi_data
 
 def display_sidebar(data: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
     st.sidebar.header("Filters")
 
-    selected_year = Preprocessor_sales_dashboard.multiselect("Select Year", data["Year"].unique())
+    selected_year = Preprocessor_sales_dashboard.multiselect("Select Year", kpi_data["Year"].unique())
     #selected_month = Preprocessor.multiselect("Select Month", data["Month"].unique())
-    selected_product_category = Preprocessor_sales_dashboard.multiselect("Select Product Category", data["product_category_name_english"].unique())
-    selected_state = Preprocessor_sales_dashboard.multiselect("Select State", data["customer_state"].unique())
+    selected_product_category = Preprocessor_sales_dashboard.multiselect("Select Product Category", kpi_data["product_category_name_english"].unique())
+    selected_state = Preprocessor_sales_dashboard.multiselect("Select State", kpi_data["customer_state"].unique())
     
 
     return selected_year, selected_state, selected_product_category
 
-data = load_data()
+data, kpi_data = load_data()
 selected_year, selected_state, selected_product_category = display_sidebar(data)
 
 filtered_data = data.copy()
+filtered_data_kpi = kpi_data.copy()
 
 # GLobal Filtering
 filtered_data = filtered_data[(filtered_data["Year"].isin(selected_year)) & (filtered_data["customer_state"].isin(selected_state)) & (filtered_data["product_category_name_english"].isin(selected_product_category))]
+filtered_data_kpi = filtered_data_kpi[(filtered_data_kpi["Year"].isin(selected_year)) & (filtered_data_kpi["customer_state"].isin(selected_state)) & (filtered_data_kpi["product_category_name_english"].isin(selected_product_category))]
 
 # Display metrics with custom cards
 
@@ -75,14 +78,14 @@ metric_card = """
         <p style="font-size: 1.2em; color: #add568 ;">{label}</p>
     </div>
 """
-
-total_sales = filtered_data['price'].sum()
-total_sales_in_millions = round(filtered_data['price'].sum() / 1000000, 2)
+#st.write(filtered_data_kpi.head(5))
+total_sales = filtered_data_kpi['total_value'].sum()
+total_sales_in_millions = round(filtered_data_kpi['total_value'].sum() / 1000000, 2)
 formatted_total_sales = f"{total_sales_in_millions:.2f}M"
-total_orders = filtered_data['order_id'].nunique()
+total_orders = filtered_data_kpi['order_id'].nunique()
 average_order_value_rounded = round(total_sales / total_orders / 1000, 2)
 formatted_average_order_value = f"{average_order_value_rounded:.2f}K"
-total_customers = filtered_data['customer_id'].nunique()
+total_customers = filtered_data_kpi['customer_unique_id'].nunique()
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:

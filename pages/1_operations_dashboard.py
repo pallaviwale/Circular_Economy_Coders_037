@@ -1,179 +1,219 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-import Preprocessor_sales_dashboard
+import Preprocessor_operations_dashboard
 from typing import List, Tuple
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import calendar
 import altair as alt
-import plotly.graph_objects as go
-import random
-import locale
 
 #Define Page configuration
-st.set_page_config(page_title="Sales Dashboard", page_icon=":bar_chart:", layout="wide")
-
-st.title("Sales Dashboard")
-
+st.set_page_config(layout="wide")
 
 alt.themes.enable("dark")
-@st.cache_data
-def load_data() -> pd.DataFrame:
-    product_category_name_translation_dataset = pd.read_csv("Ecommerce\\product_category_name_translation.csv")
-    order_items_dataset = pd.read_csv('Ecommerce\\olist_order_items_dataset.csv')
-    orders_dataset = pd.read_csv('Ecommerce\\olist_orders_dataset.csv')
-    products_dataset = pd.read_csv("Ecommerce\\olist_products_dataset.csv")
-    payment_method_data = pd.read_csv("Ecommerce\\olist_order_payments_dataset.csv")
-    customer_data = pd.read_csv("Ecommerce\\olist_customers_dataset.csv")
 
-    main_data = Preprocessor_sales_dashboard.prepare_data(products_dataset, product_category_name_translation_dataset, order_items_dataset, orders_dataset,payment_method_data,customer_data)
+# Load datasets
+order_data = pd.read_csv("Ecommerce\\olist_orders_dataset.csv")
+df_payment = pd.read_csv("Ecommerce\\olist_order_payments_dataset.csv")
+product_category_name_translation_dataset = pd.read_csv("Ecommerce\\product_category_name_translation.csv")
+order_items_dataset = pd.read_csv('Ecommerce\\olist_order_items_dataset.csv')
+df_order = pd.read_csv('Ecommerce\\olist_orders_dataset.csv')
+products_dataset = pd.read_csv("Ecommerce\\olist_products_dataset.csv")
 
-    return main_data
+# Preprocess data
+df_order = Preprocessor_operations_dashboard.fetch_time_features(df_order)
+df_order['order_purchase_timestamp'] = pd.to_datetime(df_order['order_purchase_timestamp'])
+df_order['order_products_value'] = df_payment['payment_value'] * df_payment['payment_installments']
 
-def display_sidebar(data: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
-    st.sidebar.header("Filters")
+df_order = df_order.merge(order_items_dataset[['order_id', 'price']], on='order_id')
 
-    selected_year = Preprocessor_sales_dashboard.multiselect("Select Year", data["Year"].unique())
-    #selected_month = Preprocessor.multiselect("Select Month", data["Month"].unique())
-    selected_product_category = Preprocessor_sales_dashboard.multiselect("Select Product Category", data["product_category_name_english"].unique())
-    selected_state = Preprocessor_sales_dashboard.multiselect("Select State", data["customer_state"].unique())
-    
+##
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
 
-    return selected_year, selected_state, selected_product_category
+    .styled-title {
+        font-size: 35px;  /* Font size */
+        text-align: center;
+        color: #add568;   /* White font color */
+        font-family: 'Poppins', sans-serif;  /* Custom Google Font */
+         
+        padding: 15px;
+        
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);  /* Adds a subtle shadow */
+    }
+    </style>
+    <h1 class="styled-title">Operations Team Dashboard</h1>
+""", unsafe_allow_html=True)
+##
+# Set Streamlit layout
+#st.set_page_config(layout="wide")
+#st.title("Operation Team Dashboard")
+# Sidebar Filters for Year and Month
+st.sidebar.title("Filters")
+all_years = df_order['order_purchase_timestamp'].dt.year.unique()
+all_months = df_order['order_purchase_timestamp'].dt.month.unique()
+select_all_years = st.sidebar.checkbox("Select All Years", value=True)
+if select_all_years:
+    selected_year = st.sidebar.multiselect("Select Year", all_years, default=all_years)
+else:
+    selected_year = st.sidebar.multiselect("Select Year", all_years)
+select_all_months = st.sidebar.checkbox("Select All Months", value=True)
+if select_all_months:
+    selected_month = st.sidebar.multiselect("Select Month", all_months, default=all_months)
+else:
+    selected_month = st.sidebar.multiselect("Select Month", all_months)
+# Filter data based on selections
+filtered_df_order = df_order.copy()
+if selected_year:
+    filtered_df_order = filtered_df_order[filtered_df_order['order_purchase_timestamp'].dt.year.isin(selected_year)]
+if selected_month:
+    filtered_df_order = filtered_df_order[filtered_df_order['order_purchase_timestamp'].dt.month.isin(selected_month)]
+# Calculate KPIs
+total_revenue = filtered_df_order['order_products_value'].sum()
+number_of_orders = df_payment['order_id'].nunique()
+aov = total_revenue / number_of_orders
 
-data = load_data()
-selected_year, selected_state, selected_product_category = display_sidebar(data)
+total_sales = filtered_df_order['price'].sum()
+total_sales_in_millions = round(filtered_df_order['price'].sum() / 1000000, 2)
+formatted_total_sales = f"{total_sales_in_millions:.2f}M"
+average_order_value_rounded = round(total_sales / number_of_orders / 1000, 2)
+formatted_average_order_value = f"{average_order_value_rounded:.2f}K"
 
-filtered_data = data.copy()
 
-# GLobal Filtering
-filtered_data = filtered_data[(filtered_data["Year"].isin(selected_year)) & (filtered_data["customer_state"].isin(selected_state)) & (filtered_data["product_category_name_english"].isin(selected_product_category))]
+# Display KPIs in one row
+st.subheader("Key Performance Indicators")
+kpi_col1, kpi_col2, kpi_col3,kpi_col4 = st.columns(4)
+# Sales Over Time Analysis
+filtered_df_order['order_purchase_date'] = filtered_df_order['order_purchase_timestamp'].dt.date
+# # Convert 'order_date' to datetime if it's not already
+if not pd.api.types.is_datetime64_any_dtype(filtered_df_order['order_purchase_date']):
+    filtered_df_order['order_purchase_date'] = pd.to_datetime(filtered_df_order['order_purchase_date'])
+monthly_data = filtered_df_order.groupby(filtered_df_order['order_purchase_date'].dt.to_period('M')).agg(
+    {'order_products_value': 'sum', 'order_id': 'nunique'})
+monthly_data['AOV'] = monthly_data['order_products_value'] / monthly_data['order_id']
+monthly_data = monthly_data.reset_index()
+monthly_data['order_purchase_date'] = monthly_data['order_purchase_date'].dt.to_timestamp()
+# Monthly Total Sales
+filtered_df_order['order_purchase_month'] = filtered_df_order['order_purchase_timestamp'].dt.to_period('M')
+monthly_sales = filtered_df_order.groupby('order_purchase_month')['order_products_value'].sum().reset_index()
+monthly_sales['order_purchase_month'] = monthly_sales['order_purchase_month'].dt.to_timestamp()
+average_monthly_sales = monthly_sales['order_products_value'].mean()
+rounded_average = round(average_monthly_sales, 2)
+average_in_millions = rounded_average / 1000000
+formatted_average = f"{average_in_millions:.2f}M"
 
-# Display metrics with custom cards
+# Delivery Time Analysis
+filtered_df_order['delivery_time'] = (
+    filtered_df_order['order_delivered_customer_date'] - filtered_df_order['order_purchase_timestamp']
+).dt.days
+avg_delivery_time = filtered_df_order['delivery_time'].mean()
+# st.subheader("Visual Insights")
+chart_col1, chart_col2 = st.columns(2)
+# # Plot Average Order Value Over Time  ## First plot
+# Ensure 'order_purchase_timestamp' is in datetime format
+monthly_data['order_purchase_timestamp'] = monthly_data['order_purchase_date']
+# Extract year and month from 'order_purchase_timestamp'
+monthly_data['year'] = monthly_data['order_purchase_timestamp'].dt.year
+monthly_data['month'] = monthly_data['order_purchase_timestamp'].dt.month
+# Pivot the data to have separate columns for each year's AOV
+pivot_data = monthly_data.pivot_table(
+    index='month',
+    columns='year',
+    values='AOV',
+    aggfunc='mean'
+).reset_index()
+# # Plot Monthly Total Sales
+# Ensure 'order_purchase_timestamp' is in datetime format
+monthly_sales['order_purchase_timestamp'] = monthly_data['order_purchase_date']
+monthly_sales['year'] = monthly_sales['order_purchase_timestamp'].dt.year
+monthly_sales['month'] = monthly_sales['order_purchase_timestamp'].dt.month
+#Pivot the data to have separate columns for each year's total sales
+pivot_sales = monthly_sales.pivot_table(
+    index='month',
+    columns='year',
+    values='order_products_value',
+    aggfunc='sum'
+).reset_index()
+# Layout for Delivery Time Analysis
+delivery_chart_col1, delivery_chart_col2 = st.columns(2)
+# # Plot Average Delivery Time Over Time
+monthly_avg_delivery_time = filtered_df_order.groupby('order_purchase_month')['delivery_time'].mean().reset_index()
+monthly_avg_delivery_time['order_purchase_month'] = monthly_avg_delivery_time['order_purchase_month'].dt.to_timestamp()
+# Ensure 'order_purchase_month' is in datetime format
+monthly_avg_delivery_time['order_purchase_month'] = pd.to_datetime(monthly_avg_delivery_time['order_purchase_month'])
+# Extract year and month from 'order_purchase_month'
+monthly_avg_delivery_time['year'] = monthly_avg_delivery_time['order_purchase_month'].dt.year
+monthly_avg_delivery_time['month'] = monthly_avg_delivery_time['order_purchase_month'].dt.month
+# Pivot the data to have separate columns for each year's average delivery time
+pivot_avg_delivery_time = monthly_avg_delivery_time.pivot_table(
+    index='month',
+    columns='year',
+    values='delivery_time',
+    aggfunc='mean'
+).reset_index()
 
 metric_card = """
-    <div style="background-color: #5f5f5f; padding: 20px; border-radius: 10px;
+    <div style="background-color: #5f5f5f; padding: 10px; border-radius: 10px;
                 border: 1px solid #add568 ; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
                 text-align: center;">
         <h2 style="color: #add568 ; font-size: 2.5em;">{value}</h2>
         <p style="font-size: 1.2em; color: #add568 ;">{label}</p>
     </div>
 """
-
-total_sales = filtered_data['price'].sum()
-total_sales_in_millions = round(filtered_data['price'].sum() / 1000000, 2)
-formatted_total_sales = f"{total_sales_in_millions:.2f}M"
-total_orders = filtered_data['order_id'].nunique()
-average_order_value_rounded = round(total_sales / total_orders / 1000, 2)
-formatted_average_order_value = f"{average_order_value_rounded:.2f}K"
-total_customers = filtered_data['customer_id'].nunique()
-
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.markdown(metric_card.format(value=formatted_total_sales, label="Total Sales"), unsafe_allow_html=True)
-with col2:
-    st.markdown(metric_card.format(value = total_orders, label="Total Orders"), unsafe_allow_html=True)
-with col3:
+# Use different colors for different metrics
+with kpi_col1:
+    st.markdown(metric_card.format(value=formatted_total_sales, label="Total Revenue"), unsafe_allow_html=True)
+with kpi_col2:
+    st.markdown(metric_card.format(value = number_of_orders, label="Total Orders"), unsafe_allow_html=True)
+with kpi_col3:
     st.markdown(metric_card.format(value=formatted_average_order_value, label="Average Order Value"), unsafe_allow_html=True)
-with col4:
-    st.markdown(metric_card.format(value = total_customers, label="Total Customers"), unsafe_allow_html=True)
-
-#Visualizations -
-
-col1, col2 = st.columns([3,2],vertical_alignment="center")
-with col1:
-    # Line chart for Total Month-Year Sales
-    #st.markdown('<h1 style="font-family: Arial; font-size: 24px; color: #add568; text-align: center;">Total Month-Year Sales</h1>', unsafe_allow_html=True)
-    total_sales_data = filtered_data[['Year', 'Month_String', 'Month', 'price']].groupby(['Month', 'Year', 'Month_String'], as_index=False)['price'].sum()
-    fig = px.line(total_sales_data, x="Month_String", y="price", color="Year", markers=True, color_discrete_sequence=["#FF69B4", "#FFD700", "#00FF00"], title="Total Month-Year Sales")
-    # Customize colors and font sizes
-    fig.update_layout(
-        font=dict(family="Arial", size=14),
-        title_font=dict(size=24, color="#add568"),
-        title_x=0.33,
-        xaxis_title="Month-Year",
-        yaxis_title="Total Sales",
-        legend_title="Year",
-        legend_font=dict(size=12),
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
-
-with col2:
-    guage_data_2018 = data[data['Year']==2018]
-    guage_data_2017 = data[data['Year']==2017]
-
-    Sale_2017_Sep = guage_data_2017[guage_data_2017['Month']<=9].groupby('Year')['price'].sum().reset_index()
-    Sale_2017_Sep_Val = Sale_2017_Sep['price'].values[0]
-    Sale_2018_Sep = guage_data_2018[guage_data_2018['Month']<=9].groupby('Year')['price'].sum().reset_index()
-    Sale_2018_Sep_Val = Sale_2018_Sep['price'].values[0]
-
-    Sale_2017_Dec = guage_data_2017[guage_data_2017['Month']>9].groupby('Year')['price'].sum().reset_index()
-    Sale_2017_Dec_Val = Sale_2017_Dec['price'].values[0]
-
-    Sep_increase = Sale_2018_Sep_Val/Sale_2017_Sep_Val
-    projected_dec_2018 = round(Sale_2017_Dec_Val * Sep_increase)
-    forcast_value = round(Sale_2018_Sep_Val + projected_dec_2018)
-
-    # Create a gauge chart
-    fig = go.Figure(
-        go.Indicator(
-            value=forcast_value,
-            mode="gauge+number",
-            domain={"x": [0, 1], "y": [0, 1]},
-            number={"suffix": " (Forecast)", "font.size": 26},
-            gauge={
-                "axis": {"range": [0, forcast_value * 1.25], "tickwidth": 1}, 
-                "bar": {"color": "green"},
-            },
-            title={
-                "text": "Sales Forecast Till 2018 End",
-                "font": {"size": 24, "color": "#add568"},
-            },
-        )
-    )
-
-    fig.update_layout(
-        font=dict(family="Arial", size=14),
-        height=300,
-        margin=dict(l=10, r=10, t=50, b=10, pad=8),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-col3, col4 = st.columns(2)
-with col3:
-    top_states = filtered_data[["customer_state", "price"]].groupby("customer_state").sum().sort_values(by="price", ascending=False).head(10).reset_index()
+with kpi_col4:
+    st.markdown(metric_card.format(value=formatted_average, label="Average Monthly Sales"), unsafe_allow_html=True)
     
-    # Create a bar chart with 'customer_state' on the x-axis and 'price' on the y-axis
-    fig = px.bar(top_states, x="customer_state", y="price", color="customer_state", title="Top States by Total Sales")
-
-    fig.update_layout(
-        font=dict(family="Arial", size=14),
-        title_font=dict(size=24, color="#add568"),
-        title_x=0.33,
-        xaxis_title="Customer State",
-        yaxis_title="Total Sales",
-        legend_title="Customer State",
-        legend_font=dict(size=12),
-    )
-
-    st.plotly_chart(fig, use_container_width=True, height=400)
-
-with col4:
-    top_product_categories = filtered_data.groupby("product_category_name_english")["price"].sum().sort_values(ascending=False).head(10).reset_index()
-
-    # Create a pie chart using Plotly Express
-    fig = px.pie(top_product_categories, names="product_category_name_english", values="price", title="Top Product Categories", color_discrete_sequence=["#FF69B4", "#FFD700", "#00FF00", "#FF8C00", "#9370DB", "#00FFFF", "#FF00FF", "#40E0D0", "#FFC0CB", "#800000"])
-
-    # Customize colors and font sizes
-    fig.update_layout(
-        font=dict(family="Arial", size=14),
-        title_font=dict(size=24, color="#add568"),
-        title_x=0.33,
-        legend_font=dict(size=12),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+# Plot Average Order Value Over Time
+with chart_col1:
+    #st.write("Average Order Value Over Time")
+    fig_aov = px.line(pivot_data, x='month', y=pivot_data.columns[1:],
+                      title="Average Order Value Over Time",
+                      labels={'value': 'AOV', 'month': 'Month'},
+                      template="plotly_white")
+    fig_aov.update_traces(line=dict(width=2))
+    fig_aov.update_layout(xaxis_title="Months", yaxis_title="Order Value",
+                          legend_title="Year", font=dict(size=12))
+    st.plotly_chart(fig_aov)
+# Plot Monthly Total Sales
+with chart_col2:
+    #st.write("Monthly Total Sales")
+    fig_sales = px.bar(pivot_sales, x='month', y=pivot_sales.columns[1:],
+                        title="Monthly Total Sales",
+                        labels={'value': 'Total Sales', 'month': 'Month'},
+                        template="plotly_white")
+    fig_sales.update_traces(marker=dict(color='#00796B', line=dict(color='#004D40', width=1)))
+    fig_sales.update_layout(xaxis_title="Months", yaxis_title="Sales",
+                            legend_title="Year", font=dict(size=12))
+    st.plotly_chart(fig_sales)
+# Plot Delivery Time Distribution
+with delivery_chart_col1:
+    #st.write("Delivery Time Distribution")
+    delivery_time_counts = filtered_df_order['delivery_time'].value_counts().sort_index()
+    fig_delivery_time = px.bar(delivery_time_counts, x=delivery_time_counts.index,
+                                y=delivery_time_counts.values,
+                                title="Delivery Time Distribution",
+                                labels={'x': 'Days', 'y': 'Total Orders'},
+                                template="plotly_white")
+    fig_delivery_time.update_traces(marker_color='#FFAB40')
+    st.plotly_chart(fig_delivery_time)
+# Plot Average Delivery Time Over Time
+with delivery_chart_col2:
+    #st.write("Average Delivery Time Over Time")
+    fig_avg_delivery_time = px.line(pivot_avg_delivery_time, x='month', y=pivot_avg_delivery_time.columns[1:],
+                                      title="Average Delivery Time Over Time",
+                                      labels={'value': 'Average Delivery Time', 'month': 'Month'},
+                                      template="plotly_white")
+    fig_avg_delivery_time.update_traces(line=dict(width=2))
+    fig_avg_delivery_time.update_layout(xaxis_title="Months", yaxis_title="Days",
+                                         legend_title="Year", font=dict(size=12))
+    st.plotly_chart(fig_avg_delivery_time)

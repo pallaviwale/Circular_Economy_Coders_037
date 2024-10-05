@@ -1,13 +1,8 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-#import Operation_Preprocessor
-#order_data = pd.read_csv("olist_orders_dataset.csv")
-#df = pd.DataFrame(order_data)
-#df = Operation_Preprocessor.fetch_time_features(df)
-##
-##
 import streamlit as st
+
 # Set page configuration
 st.set_page_config(page_title="E-commerce Dashboard Overview", page_icon=":bar_chart:", layout="wide")
 # Add CSS for custom styling with a background color for the entire page
@@ -19,8 +14,8 @@ st.markdown("""
             font-family: 'Arial', sans-serif;
         }
         .main-header {
-            background-color: #007BFF; /* Primary color */
-            padding: 20px;
+            background-color: #28b78d; /* Primary color */
+            padding: 8px;
             border-radius: 10px;
             text-align: center;
             margin-bottom: 20px;
@@ -39,15 +34,15 @@ st.markdown("""
             font-size: 28px;
             font-weight: bold;
             color: #FFFFFF;
-            background: #FF6F61; /* Accent color */
+            background: #5f5f5f; /* Accent color */
             padding: 10px;
             border-radius: 5px;
             margin-top: 20px;
         }
         .dashboard-info {
             font-size: 18px;
-            color: #1E1E1E;
-            background: #FFFFFF; /* White background for info boxes */
+            color: #FFFFFF;
+            
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 15px;
@@ -72,16 +67,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Include the project logo at the bottom of the sidebar
-st.sidebar.image("EcomDash_Logo.jpeg", use_column_width=True)
+st.sidebar.image("EcomDash_Logo.png", use_column_width=True)
+
+col1,col2 = st.columns([10,90],vertical_alignment="center")
+with col1:
 # Header with logo on the main page
-st.image("EcomDash_Logo.jpeg", width=150)  # Adjust size as needed
+    st.image("EcomDash_Logo.png", width=150)  # Adjust size as needed
+
+with col2:
 # Header with background styling
-st.markdown("""
-    <div class="main-header">
-        <h1>Welcome to EcomDash</h1>
-        <p class="header-description">Your one-stop solution for e-commerce analytics and insights</p>
-    </div>
-""", unsafe_allow_html=True)
+    st.markdown("""
+        <div class="main-header">
+            <h1>Welcome to EcomDash</h1>
+            <p class="header-description">Your one-stop solution for e-commerce analytics and insights</p>
+        </div>
+    """, unsafe_allow_html=True)
+
 # Welcome message with background color
 st.markdown("""
     <div class="dashboard-info">

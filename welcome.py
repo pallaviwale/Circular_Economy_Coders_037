@@ -98,7 +98,7 @@ st.header("Dashboards Overview")
 st.markdown('<h2 class="subheader-text">Operations Team Dashboard</h2>', unsafe_allow_html=True)
 st.markdown("""
 <div class="dashboard-info">
-- **Average Order Value Over Time**: Track the average value of orders over different time periods to understand customer spending patterns and evaluate pricing strategies.<br>
+- **Order delivery Percentage**: Gives data about pencentage of orders delievered..<br>
 - **Monthly Total Sales**: Monitor total sales generated each month to identify seasonality and plan inventory accordingly.<br>
 - **Delivery Time Distribution**: Analyze the distribution of delivery times to ensure timely deliveries and identify bottlenecks in logistics.<br>
 - **Average Delivery Time Over Time**: Observe trends in average delivery time to improve fulfillment efficiency.

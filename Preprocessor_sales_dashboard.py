@@ -55,6 +55,32 @@ def prepare_data(products_dataset, product_category_name_translation_dataset, or
 
     return order_data_time_name
 
+def kpi_metrics_data(orders_dataset, order_items_dataset, payment_method_data, products_dataset, product_category_name_translation_dataset, customer_data):
+    order_data = order_items_dataset.groupby(['order_id', 'product_id'])[['price', 'freight_value']].sum().reset_index()
+    order_data = order_data.merge(orders_dataset[['order_id', 'customer_id', 'order_purchase_timestamp']], on='order_id')
+    order_data = order_data.merge(customer_data[['customer_id','customer_unique_id', 'customer_city', 'customer_state']], on='customer_id')
+
+    payment_data = payment_method_data.groupby('order_id')['payment_value'].sum().reset_index()
+    payment_data = payment_data[payment_data['order_id'].isin(order_data['order_id'])]
+
+    products_dataset = products_dataset.merge(product_category_name_translation_dataset, on='product_category_name').reset_index()
+
+    kpi_data = order_data.merge(payment_data[['order_id', 'payment_value']], on='order_id')
+    kpi_data['total_value'] = kpi_data['price']+kpi_data['freight_value']
+    kpi_data = kpi_data.merge(products_dataset[['product_id','product_category_name_english']], on = 'product_id', how = 'left')
+    kpi_data['product_category_name_english'] = kpi_data['product_category_name_english'].fillna('undefined')
+    kpi_data["order_purchase_timestamp"] = pd.to_datetime(kpi_data["order_purchase_timestamp"], format = "mixed")
+
+    kpi_data["Year"] = kpi_data["order_purchase_timestamp"].dt.year
+    kpi_data["Month"] = kpi_data["order_purchase_timestamp"].dt.month
+    kpi_data["Day"] = kpi_data["order_purchase_timestamp"].dt.day
+    kpi_data["Month_String"] = kpi_data["order_purchase_timestamp"].dt.month_name()
+    print(kpi_data['customer_unique_id'])
+    #kpi_data.to_csv(r'C:\Users\Rushikesh Chougule\Desktop\Pallavi\Masai School\kpi_data_time2.txt', index = None, sep='#', mode='a')
+    return kpi_data
+
+#kpi_metrics_data(orders_dataset, order_items_dataset, payment_method_data, products_dataset, product_category_name_translation_dataset, customer_data)
+
 
 #data =prepare_data(products_dataset, product_category_name_translation_dataset, order_items_dataset, orders_dataset,payment_method_data,customer_data)
 #print(data.head(5))

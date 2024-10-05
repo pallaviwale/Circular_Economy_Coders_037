@@ -8,6 +8,7 @@ import seaborn as sns
 import plotly.express as px
 import calendar
 import altair as alt
+import plotly.graph_objects as go
 
 #Define Page configuration
 st.set_page_config(layout="wide")
@@ -27,7 +28,9 @@ df_order = Preprocessor_operations_dashboard.fetch_time_features(df_order)
 df_order['order_purchase_timestamp'] = pd.to_datetime(df_order['order_purchase_timestamp'])
 df_order['order_products_value'] = df_payment['payment_value'] * df_payment['payment_installments']
 
-df_order = df_order.merge(order_items_dataset[['order_id', 'price']], on='order_id')
+df_order = df_order.merge(order_items_dataset[['order_id', 'price','freight_value']], on='order_id')
+df_order['total_price_value'] = df_order['price']+df_order['freight_value']
+df_order = df_order[df_order['order_id'].isin(df_payment['order_id'])]
 
 ##
 st.markdown("""
@@ -72,15 +75,19 @@ if selected_year:
 if selected_month:
     filtered_df_order = filtered_df_order[filtered_df_order['order_purchase_timestamp'].dt.month.isin(selected_month)]
 # Calculate KPIs
-total_revenue = filtered_df_order['order_products_value'].sum()
-number_of_orders = df_payment['order_id'].nunique()
+total_revenue = filtered_df_order['total_price_value'].sum()
+number_of_orders = df_order['order_id'].nunique()
 aov = total_revenue / number_of_orders
-
-total_sales = filtered_df_order['price'].sum()
-total_sales_in_millions = round(filtered_df_order['price'].sum() / 1000000, 2)
+total_sales = filtered_df_order['total_price_value'].sum()
+total_sales_in_millions = round(filtered_df_order['total_price_value'].sum() / 1000000, 2)
 formatted_total_sales = f"{total_sales_in_millions:.2f}M"
-average_order_value_rounded = round(total_sales / number_of_orders / 1000, 2)
-formatted_average_order_value = f"{average_order_value_rounded:.2f}K"
+average_order_value_rounded = round(total_sales / number_of_orders)
+#formatted_average_order_value = f"{average_order_value_rounded:.2f}K"
+formatted_average_order_value = f"${average_order_value_rounded}"
+
+total_freight_value = filtered_df_order['freight_value'].sum()
+average_order_freight_value_rounded = round(total_freight_value / number_of_orders)
+formatted_average_order_freight_value=f"${average_order_freight_value_rounded}"
 
 
 # Display KPIs in one row
@@ -96,6 +103,7 @@ monthly_data = filtered_df_order.groupby(filtered_df_order['order_purchase_date'
 monthly_data['AOV'] = monthly_data['order_products_value'] / monthly_data['order_id']
 monthly_data = monthly_data.reset_index()
 monthly_data['order_purchase_date'] = monthly_data['order_purchase_date'].dt.to_timestamp()
+
 # Monthly Total Sales
 filtered_df_order['order_purchase_month'] = filtered_df_order['order_purchase_timestamp'].dt.to_period('M')
 monthly_sales = filtered_df_order.groupby('order_purchase_month')['order_products_value'].sum().reset_index()
@@ -105,13 +113,23 @@ rounded_average = round(average_monthly_sales, 2)
 average_in_millions = rounded_average / 1000000
 formatted_average = f"{average_in_millions:.2f}M"
 
+
+monthly_orders = filtered_df_order.groupby('order_purchase_month')['order_id'].nunique().reset_index()
+monthly_orders['order_purchase_month'] = monthly_orders['order_purchase_month'].dt.to_timestamp()
+average_monthly_orders = monthly_orders['order_id'].mean()
+rounded_order_average = round(average_monthly_orders)
+#formatted_average_order = f"{rounded_average:.2f}M"
+
+
+
 # Delivery Time Analysis
 filtered_df_order['delivery_time'] = (
     filtered_df_order['order_delivered_customer_date'] - filtered_df_order['order_purchase_timestamp']
 ).dt.days
 avg_delivery_time = filtered_df_order['delivery_time'].mean()
 # st.subheader("Visual Insights")
-chart_col1, chart_col2 = st.columns(2)
+
+chart_col1, chart_col2 = st.columns([30,70])
 # # Plot Average Order Value Over Time  ## First plot
 # Ensure 'order_purchase_timestamp' is in datetime format
 monthly_data['order_purchase_timestamp'] = monthly_data['order_purchase_date']
@@ -137,8 +155,9 @@ pivot_sales = monthly_sales.pivot_table(
     values='order_products_value',
     aggfunc='sum'
 ).reset_index()
+
 # Layout for Delivery Time Analysis
-delivery_chart_col1, delivery_chart_col2 = st.columns(2)
+delivery_chart_col1, delivery_chart_col2 = st.columns(2,vertical_alignment="center")
 # # Plot Average Delivery Time Over Time
 monthly_avg_delivery_time = filtered_df_order.groupby('order_purchase_month')['delivery_time'].mean().reset_index()
 monthly_avg_delivery_time['order_purchase_month'] = monthly_avg_delivery_time['order_purchase_month'].dt.to_timestamp()
@@ -147,6 +166,7 @@ monthly_avg_delivery_time['order_purchase_month'] = pd.to_datetime(monthly_avg_d
 # Extract year and month from 'order_purchase_month'
 monthly_avg_delivery_time['year'] = monthly_avg_delivery_time['order_purchase_month'].dt.year
 monthly_avg_delivery_time['month'] = monthly_avg_delivery_time['order_purchase_month'].dt.month
+
 # Pivot the data to have separate columns for each year's average delivery time
 pivot_avg_delivery_time = monthly_avg_delivery_time.pivot_table(
     index='month',
@@ -165,25 +185,50 @@ metric_card = """
 """
 # Use different colors for different metrics
 with kpi_col1:
-    st.markdown(metric_card.format(value=formatted_total_sales, label="Total Revenue"), unsafe_allow_html=True)
-with kpi_col2:
     st.markdown(metric_card.format(value = number_of_orders, label="Total Orders"), unsafe_allow_html=True)
-with kpi_col3:
+    #st.markdown(metric_card.format(value=formatted_total_sales, label="Total Revenue"), unsafe_allow_html=True)
+with kpi_col2:
     st.markdown(metric_card.format(value=formatted_average_order_value, label="Average Order Value"), unsafe_allow_html=True)
+    #st.markdown(metric_card.format(value = number_of_orders, label="Total Orders"), unsafe_allow_html=True)
+with kpi_col3:
+    st.markdown(metric_card.format(value=formatted_average_order_freight_value, label="Average Freight Value"), unsafe_allow_html=True)
 with kpi_col4:
-    st.markdown(metric_card.format(value=formatted_average, label="Average Monthly Sales"), unsafe_allow_html=True)
+    st.markdown(metric_card.format(value=rounded_order_average, label="Average Monthly Orders"), unsafe_allow_html=True)
     
-# Plot Average Order Value Over Time
+# Plot Order Delivered vs Cancelled
 with chart_col1:
-    #st.write("Average Order Value Over Time")
-    fig_aov = px.line(pivot_data, x='month', y=pivot_data.columns[1:],
-                      title="Average Order Value Over Time",
-                      labels={'value': 'AOV', 'month': 'Month'},
-                      template="plotly_white")
-    fig_aov.update_traces(line=dict(width=2))
-    fig_aov.update_layout(xaxis_title="Months", yaxis_title="Order Value",
-                          legend_title="Year", font=dict(size=12))
-    st.plotly_chart(fig_aov)
+    order_status_data = filtered_df_order.groupby("order_status")["order_id"].nunique().sort_values(ascending=False).reset_index()
+
+    total_order = order_status_data["order_id"].sum()
+    delivered_order = order_status_data[order_status_data["order_status"]=="delivered"]["order_id"].sum()
+
+    delivery_completed = round((delivered_order/total_order)*100,2)
+    #st.write(total_order, delivered_order, delivery_completed)	
+	# Create a gauge chart
+    fig_delivery = go.Figure(
+		go.Indicator(
+			value=delivery_completed,
+			mode="gauge+number",
+			domain={"x": [0, 1], "y": [0, 1]},
+			number={"suffix": "% (Order Delivered )", "font.size": 15},
+			gauge={
+				"axis": {"range": [0, 100], "tickwidth": 1}, 
+				"bar": {"color": "yellow"},
+			},
+		
+		)
+	)
+    
+    fig_delivery.update_layout(
+		font=dict(family="Arial", size=12),
+		height=320,
+		margin=dict(l=10, r=10,t=90,b=10, pad=8),
+        title = "Order Delivery Percentage",  
+	)
+    
+    st.plotly_chart(fig_delivery, use_container_width=True)
+
+
 # Plot Monthly Total Sales
 with chart_col2:
     #st.write("Monthly Total Sales")
@@ -191,18 +236,19 @@ with chart_col2:
                         title="Monthly Total Sales",
                         labels={'value': 'Total Sales', 'month': 'Month'},
                         template="plotly_white")
-    fig_sales.update_traces(marker=dict(color='#00796B', line=dict(color='#004D40', width=1)))
+    #fig_sales.update_traces(marker=dict(color='#00796B', line=dict(color='#004D40', width=1)))
     fig_sales.update_layout(xaxis_title="Months", yaxis_title="Sales",
-                            legend_title="Year", font=dict(size=12))
+                            legend_title="Year", font=dict(size=12),)
     st.plotly_chart(fig_sales)
+
 # Plot Delivery Time Distribution
 with delivery_chart_col1:
     #st.write("Delivery Time Distribution")
     delivery_time_counts = filtered_df_order['delivery_time'].value_counts().sort_index()
     fig_delivery_time = px.bar(delivery_time_counts, x=delivery_time_counts.index,
                                 y=delivery_time_counts.values,
-                                title="Delivery Time Distribution",
-                                labels={'x': 'Days', 'y': 'Total Orders'},
+                                title="Delivery Time Distribution in Days",
+                                labels={'x': 'Delivery Time in Days', 'y': 'Total Orders'},
                                 template="plotly_white")
     fig_delivery_time.update_traces(marker_color='#FFAB40')
     st.plotly_chart(fig_delivery_time)

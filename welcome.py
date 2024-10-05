@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-import streamlit as st
+import altair as alt
 
+alt.themes.enable("dark")
 # Set page configuration
 st.set_page_config(page_title="E-commerce Dashboard Overview", page_icon=":bar_chart:", layout="wide")
 # Add CSS for custom styling with a background color for the entire page

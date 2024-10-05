@@ -4,7 +4,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-order_data = pd.read_csv("Ecommerce\\olist_orders_dataset.csv")
+order_data = pd.read_csv("olist_orders_dataset.csv")
 df = pd.DataFrame(order_data)
 
 #Multiselect function
@@ -19,12 +19,12 @@ def multiselect(title,option_list):
 
 #Product Category Sales
 
-product_category_name_translation_dataset = pd.read_csv("Ecommerce\\product_category_name_translation.csv")
-order_items_dataset = pd.read_csv('Ecommerce\\olist_order_items_dataset.csv')
-orders_dataset = pd.read_csv('Ecommerce\\olist_orders_dataset.csv')
-products_dataset = pd.read_csv("Ecommerce\\olist_products_dataset.csv")
-payment_method_data = pd.read_csv("Ecommerce\\olist_order_payments_dataset.csv")
-customer_data = pd.read_csv("Ecommerce\\olist_customers_dataset.csv")
+product_category_name_translation_dataset = pd.read_csv("product_category_name_translation.csv")
+order_items_dataset = pd.read_csv('olist_order_items_dataset.csv')
+orders_dataset = pd.read_csv('olist_orders_dataset.csv')
+products_dataset = pd.read_csv("olist_products_dataset.csv")
+payment_method_data = pd.read_csv("olist_order_payments_dataset.csv")
+customer_data = pd.read_csv("olist_customers_dataset.csv")
 
 def prepare_data(products_dataset, product_category_name_translation_dataset, order_items_dataset, orders_dataset,payment_method_data,customer_data):
     # Merge products dataset with product category translation dataset

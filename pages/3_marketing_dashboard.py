@@ -3,9 +3,11 @@ import numpy as np
 import streamlit as st
 import plotly.express as px
 import Preprocessor_marketing_dashboard as mb
+import altair as alt
 #set streamlit layout wide
 st.set_page_config(layout="wide")
 
+alt.themes.enable("dark")
 # st.title("Marketing Team Dashboad")
 st.markdown("""
     <style>
@@ -25,16 +27,17 @@ st.markdown("""
     <h1 class="styled-title">Marketing Team Dashboard</h1>
 """, unsafe_allow_html=True)
 
+
 ## Load datasets
-customers = pd.read_csv('Ecommerce\\olist_customers_dataset.csv')
-geolocation = pd.read_csv('Ecommerce\\olist_geolocation_dataset.csv')
-order_items = pd.read_csv('Ecommerce\\olist_order_items_dataset.csv')
-payments = pd.read_csv('Ecommerce\\olist_order_payments_dataset.csv')
-reviews = pd.read_csv('Ecommerce\\olist_order_reviews_dataset.csv')
-orders = pd.read_csv('Ecommerce\\olist_orders_dataset.csv')
-products = pd.read_csv('Ecommerce\\olist_products_dataset.csv')
-sellers = pd.read_csv('Ecommerce\\olist_sellers_dataset.csv')
-category_translation = pd.read_csv('Ecommerce\\product_category_name_translation.csv')
+customers = pd.read_csv('olist_customers_dataset.csv')
+geolocation = pd.read_csv('olist_geolocation_dataset.csv')
+order_items = pd.read_csv('olist_order_items_dataset.csv')
+payments = pd.read_csv('olist_order_payments_dataset.csv')
+reviews = pd.read_csv('olist_order_reviews_dataset.csv')
+orders = pd.read_csv('olist_orders_dataset.csv')
+products = pd.read_csv('olist_products_dataset.csv')
+sellers = pd.read_csv('olist_sellers_dataset.csv')
+category_translation = pd.read_csv('product_category_name_translation.csv')
 ## merege datasets
 product_trans=pd.merge(products,category_translation,on='product_category_name',how='left')
 customers = pd.merge(customers,orders,on='customer_id',how='left')

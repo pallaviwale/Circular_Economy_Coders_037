@@ -1,7 +1,7 @@
 # Circular-Economy-Coders_037
 
 # E-commerce Insights Dashboard
-
+<img src="EcomDash_Logo.png" alt="EcomDash" width='200'/>
 ## Description
 This project is an interactive, data-driven dashboard designed to provide insights for three key teams: Sales, Operations, and Marketing. The dashboard allows users to explore key metrics and trends related to sales performance, customer behavior, and operational efficiency using filters for products, months, and states. The application is built using Streamlit and deployed on Streamlit Cloud.
 
@@ -61,12 +61,12 @@ Users can filter the dashboard data using:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/username/ecommerce_dashboard.git
+   git clone https://github.com/pallaviwale/Circular_Economy_Coders_037.git
    ```
 
 2. Navigate to the project directory:
    ```bash
-   cd ecommerce_dashboard
+   cd Circular_Economy_Coders_037
    ```
 
 3. Install the required dependencies:

@@ -4,7 +4,7 @@ import streamlit as st
 import altair as alt
 
 # Set page configuration
-st.set_page_config(page_title="E-commerce Dashboard Overview", page_icon=":bar_chart:", layout="wide")
+st.set_page_config(page_title="E-commerce Dashboard Overview", page_icon=":bar_chart:", layout="wide", theme="dark")
 #alt.themes.enable("dark")
 # Add CSS for custom styling with a background color for the entire page
 st.markdown("""

@@ -76,7 +76,7 @@ if selected_month:
     filtered_df_order = filtered_df_order[filtered_df_order['order_purchase_timestamp'].dt.month.isin(selected_month)]
 # Calculate KPIs
 total_revenue = filtered_df_order['total_price_value'].sum()
-number_of_orders = df_order['order_id'].nunique()
+number_of_orders = filtered_df_order['order_id'].nunique()
 aov = total_revenue / number_of_orders
 total_sales = filtered_df_order['total_price_value'].sum()
 total_sales_in_millions = round(filtered_df_order['total_price_value'].sum() / 1000000, 2)

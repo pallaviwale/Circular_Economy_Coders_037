@@ -16,12 +16,12 @@ st.set_page_config(layout="wide")
 alt.themes.enable("dark")
 
 # Load datasets
-order_data = pd.read_csv("Ecommerce\\olist_orders_dataset.csv")
-df_payment = pd.read_csv("Ecommerce\\olist_order_payments_dataset.csv")
-product_category_name_translation_dataset = pd.read_csv("Ecommerce\\product_category_name_translation.csv")
-order_items_dataset = pd.read_csv('Ecommerce\\olist_order_items_dataset.csv')
-df_order = pd.read_csv('Ecommerce\\olist_orders_dataset.csv')
-products_dataset = pd.read_csv("Ecommerce\\olist_products_dataset.csv")
+order_data = pd.read_csv("olist_orders_dataset.csv")
+df_payment = pd.read_csv("olist_order_payments_dataset.csv")
+product_category_name_translation_dataset = pd.read_csv("product_category_name_translation.csv")
+order_items_dataset = pd.read_csv('olist_order_items_dataset.csv')
+df_order = pd.read_csv('olist_orders_dataset.csv')
+products_dataset = pd.read_csv("olist_products_dataset.csv")
 
 # Preprocess data
 df_order = Preprocessor_operations_dashboard.fetch_time_features(df_order)

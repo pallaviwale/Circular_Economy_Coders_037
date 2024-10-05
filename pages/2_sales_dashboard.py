@@ -35,12 +35,12 @@ st.markdown("""
 
 @st.cache_data
 def load_data() -> pd.DataFrame:
-    product_category_name_translation_dataset = pd.read_csv("Ecommerce\\product_category_name_translation.csv")
-    order_items_dataset = pd.read_csv('Ecommerce\\olist_order_items_dataset.csv')
-    orders_dataset = pd.read_csv('Ecommerce\\olist_orders_dataset.csv')
-    products_dataset = pd.read_csv("Ecommerce\\olist_products_dataset.csv")
-    payment_method_data = pd.read_csv("Ecommerce\\olist_order_payments_dataset.csv")
-    customer_data = pd.read_csv("Ecommerce\\olist_customers_dataset.csv")
+    product_category_name_translation_dataset = pd.read_csv("product_category_name_translation.csv")
+    order_items_dataset = pd.read_csv('olist_order_items_dataset.csv')
+    orders_dataset = pd.read_csv('olist_orders_dataset.csv')
+    products_dataset = pd.read_csv("olist_products_dataset.csv")
+    payment_method_data = pd.read_csv("olist_order_payments_dataset.csv")
+    customer_data = pd.read_csv("olist_customers_dataset.csv")
 
     main_data = Preprocessor_sales_dashboard.prepare_data(products_dataset, product_category_name_translation_dataset, order_items_dataset, orders_dataset,payment_method_data,customer_data)
     kpi_data = Preprocessor_sales_dashboard.kpi_metrics_data(orders_dataset, order_items_dataset, payment_method_data, products_dataset, product_category_name_translation_dataset, customer_data)

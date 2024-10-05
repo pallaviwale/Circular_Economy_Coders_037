@@ -3,7 +3,7 @@ import numpy as np
 import streamlit as st
 
 
-order_data = pd.read_csv("Ecommerce\\olist_orders_dataset.csv")
+order_data = pd.read_csv("olist_orders_dataset.csv")
 df = pd.DataFrame(order_data)
 #convert date into datetime and get year,month and day
 def fetch_time_features(df):

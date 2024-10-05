@@ -9,61 +9,61 @@ alt.themes.enable("dark")
 # Add CSS for custom styling with a background color for the entire page
 st.markdown("""
     <style>
-        /* Set a background color for the entire page */
-        body {
-            background-color: #F0F2F5;
-            font-family: 'Arial', sans-serif;
-        }
-        .main-header {
-            background-color: #28b78d; /* Primary color */
-            padding: 8px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .main-header h1 {
-            color: #FFFFFF;
-            font-size: 40px;
-            font-weight: bold;
-        }
-        .header-description {
-            color: #FFFFFF;
-            font-size: 18px;
-            margin-top: 10px;
-        }
-        .subheader-text {
-            font-size: 28px;
-            font-weight: bold;
-            color: #FFFFFF;
-            background: #5f5f5f; /* Accent color */
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .dashboard-info {
-            font-size: 18px;
-            color: #FFFFFF;
-            
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .footer-note {
-            font-size: 14px;
-            color: #6C757D;
-            text-align: center;
-            margin-top: 50px;
-        }
-        /* Sidebar logo at the bottom */
-        .sidebar-logo {
-            position: fixed;
-            bottom: 20px;
-            width: 240px;
-            padding: 10px;
-            background-color: #FFFFFF;
-            border-radius: 10px;
-        }
+    /* Set a background color for the entire page */
+    body {
+        background-color: #F0F2F5;
+        font-family: 'Arial', sans-serif;
+    }
+    .main-header {
+        background-color: #28b78d; /* Primary color */
+        padding: 8px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .main-header h1 {
+        color: #FFFFFF;
+        font-size: 40px;
+        font-weight: bold;
+    }
+    .header-description {
+        color: #FFFFFF;
+        font-size: 18px;
+        margin-top: 10px;
+    }
+    .subheader-text {
+        font-size: 28px;
+        font-weight: bold;
+        color: #FFFFFF;
+        background: #5f5f5f; /* Accent color */
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+    .dashboard-info {
+        font-size: 18px;
+        color: #FFFFFF;
+
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .footer-note {
+        font-size: 14px;
+        color: #6C757D;
+        text-align: center;
+        margin-top: 50px;
+    }
+    /* Sidebar logo at the bottom */
+    .sidebar-logo {
+        position: fixed;
+        bottom: 20px;
+        width: 240px;
+        padding: 10px;
+        background-color: #FFFFFF;
+        border-radius: 10px;
+    }
     </style>
 """, unsafe_allow_html=True)
 

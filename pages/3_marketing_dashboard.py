@@ -6,6 +6,7 @@ import Preprocessor_marketing_dashboard as mb
 #set streamlit layout wide
 st.set_page_config(layout="wide")
 
+
 # st.title("Marketing Team Dashboad")
 st.markdown("""
     <style>
@@ -25,6 +26,7 @@ st.markdown("""
     <h1 class="styled-title">Marketing Team Dashboard</h1>
 """, unsafe_allow_html=True)
 
+@st.cache_data
 ## Load datasets
 customers = pd.read_csv('olist_customers_dataset.csv')
 geolocation = pd.read_csv('olist_geolocation_dataset.csv')

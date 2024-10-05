@@ -11,10 +11,27 @@ import altair as alt
 import plotly.graph_objects as go
 
 #Define Page configuration
-st.set_page_config(page_title="Sales Dashboard", page_icon=":bar_chart:", layout="wide")
+st.set_page_config(layout="wide")
 
-st.title("📊 Sales Dashboard")
+#st.title("📊 Sales Dashboard")
 alt.themes.enable("dark")
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+    .styled-title {
+        font-size: 35px;  /* Font size */
+        text-align: center;
+        color: #add568;   /* White font color */
+        font-family: 'Poppins', sans-serif;  /* Custom Google Font */
+         
+        padding: 15px;
+        
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);  /* Adds a subtle shadow */
+    }
+    </style>
+    <h1 class="styled-title">📊Sales Team Dashboard</h1>
+""", unsafe_allow_html=True)
 
 @st.cache_data
 def load_data() -> pd.DataFrame:

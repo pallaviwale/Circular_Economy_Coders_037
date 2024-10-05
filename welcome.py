@@ -70,7 +70,7 @@ st.markdown("""
 # Include the project logo at the bottom of the sidebar
 st.sidebar.image("EcomDash_Logo.png", use_column_width=True)
 
-col1,col2 = st.columns(2)
+col1,col2 = st.columns(30,70)
 with col1:
 # Header with logo on the main page
     st.image("EcomDash_Logo.png", width=150)  # Adjust size as needed

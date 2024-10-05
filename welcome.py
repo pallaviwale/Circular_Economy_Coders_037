@@ -16,7 +16,7 @@ st.markdown("""
     }
     .main-header {
         background-color: #28b78d; /* Primary color */
-        padding: 8px;
+        padding: 6px;
         border-radius: 10px;
         text-align: center;
         margin-bottom: 20px;
@@ -70,7 +70,7 @@ st.markdown("""
 # Include the project logo at the bottom of the sidebar
 st.sidebar.image("EcomDash_Logo.png", use_column_width=True)
 
-col1,col2 = st.columns([10,90],vertical_alignment="center")
+col1,col2 = st.columns([20,80],vertical_alignment="center")
 with col1:
 # Header with logo on the main page
     st.image("EcomDash_Logo.png", width=150)  # Adjust size as needed

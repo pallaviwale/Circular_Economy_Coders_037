@@ -32,7 +32,7 @@ st.markdown("""
         margin-top: 10px;
     }
     .subheader-text {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
         color: #FFFFFF;
         background: #5f5f5f; /* Accent color */
@@ -41,7 +41,7 @@ st.markdown("""
         margin-top: 20px;
     }
     .dashboard-info {
-        font-size: 18px;
+        font-size: 15px;
         color: #FFFFFF;
 
         padding: 15px;

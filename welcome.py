@@ -32,7 +32,7 @@ st.markdown("""
         margin-top: 10px;
     }
     .subheader-text {
-        font-size: 28px;
+        font-size: 16px;
         font-weight: bold;
         color: #FFFFFF;
         background: #5f5f5f; /* Accent color */

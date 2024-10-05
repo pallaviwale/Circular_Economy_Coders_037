@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-import streamlit as st
+import altair as alt
 
 st.set_page_config(layout="wide")
 

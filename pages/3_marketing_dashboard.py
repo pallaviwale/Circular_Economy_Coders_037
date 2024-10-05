@@ -3,6 +3,7 @@ import numpy as np
 import streamlit as st
 import plotly.express as px
 import Preprocessor_marketing_dashboard as mb
+import altair as alt
 #set streamlit layout wide
 st.set_page_config(layout="wide")
 

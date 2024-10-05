@@ -15,7 +15,6 @@ st.set_page_config(layout="wide")
 
 alt.themes.enable("dark")
 
-@st.cache_data
 # Load datasets
 order_data = pd.read_csv("olist_orders_dataset.csv")
 df_payment = pd.read_csv("olist_order_payments_dataset.csv")

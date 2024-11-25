@@ -30,7 +30,6 @@ st.markdown("""
 
 ## Load datasets
 customers = pd.read_csv('olist_customers_dataset.csv')
-geolocation = pd.read_csv('olist_geolocation_dataset.csv')
 order_items = pd.read_csv('olist_order_items_dataset.csv')
 payments = pd.read_csv('olist_order_payments_dataset.csv')
 reviews = pd.read_csv('olist_order_reviews_dataset.csv')

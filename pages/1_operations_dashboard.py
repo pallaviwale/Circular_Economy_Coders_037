@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-import Preprocessor_operations_dashboard
+import Preprocessor_operations_dashboard as po
 from typing import List, Tuple
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -24,7 +24,7 @@ df_order = pd.read_csv('olist_orders_dataset.csv')
 products_dataset = pd.read_csv("olist_products_dataset.csv")
 
 # Preprocess data
-df_order = Preprocessor_operations_dashboard.fetch_time_features(df_order)
+df_order = po.fetch_time_features(df_order)
 df_order['order_purchase_timestamp'] = pd.to_datetime(df_order['order_purchase_timestamp'])
 df_order['order_products_value'] = df_payment['payment_value'] * df_payment['payment_installments']
 

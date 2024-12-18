@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-import Preprocessor_sales_dashboard
+from Codes import Preprocessor_sales_dashboard
 from typing import List, Tuple
 import matplotlib.pyplot as plt
 import seaborn as sns
